@@ -17,6 +17,7 @@ const gameManager = (function() {
 
     const _restartGame = () => {
         currentPlayer = "X";
+        gameDisplay.updatePlayer();
     }
 
     const _nextPlayer = () => {
@@ -64,10 +65,8 @@ const gameBoard = (function() {
     const setMarker = (coords) => {
         if (getMarker(coords) == " ") {
             board[coords[0]][coords[1]] = gameManager.getCurrentPlayer();
-            print();
             events.trigger("gameBoardChanged", getBoard());
         }
-        else console.log("Square already filled");
     }
 
     const reset = () => {
@@ -120,7 +119,6 @@ const gameBoard = (function() {
 
     events.subscribe("gameBoardChanged", _verifyWin);
     events.subscribe("squareClicked", setMarker);
-    events.subscribe("restartGame", reset);
     return{ print, getBoard, setMarker, getMarker, reset };
 })();
 
@@ -132,7 +130,7 @@ const gameDisplay = (function () {
     const player2Name = document.querySelector(".player2 > .text");
     const pointer = document.querySelector(".pointer > img");
     const menuMessage = document.querySelector(".menu-message");
-    const restartButton = document.querySelector(".restart-button");
+    const restartButton = document.querySelector(".restart");
     
     restartButton.addEventListener("click", () => { _restartGame(); });
     player1.addEventListener("click", () => { _changePlayerName(player1); });
@@ -186,10 +184,11 @@ const gameDisplay = (function () {
     }
 
     const _restartGame = () => {
+        console.log("reset");
         squares.forEach(item => { item.style.color = "black"; });
-        events.trigger("restartGame");
+        gameBoard.reset();
         render(gameBoard.getBoard());
-        updatePlayer();
+        events.trigger("restartGame");
     }
 
     const _squareClicked = item => {

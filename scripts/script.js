@@ -185,16 +185,17 @@ const gameDisplay = (function () {
 
     const _restartGame = () => {
         console.log("reset");
-        squares.forEach(item => { item.style.color = "black"; });
+        squares.forEach(item => { 
+            item.style.color = "black";
+            item.style.fontSize = "0em";
+         });
         gameBoard.reset();
         render(gameBoard.getBoard());
         events.trigger("restartGame");
     }
 
     const _squareClicked = item => {
-        if (gameManager.getCurrentPlayer() == "O" && item.textContent != "X") {
-            item.style.color = "white";
-        }
+        if (gameManager.getCurrentPlayer() == "O" && item.textContent != "X") item.style.color = "white";
         item.style.fontSize = "4em";
         events.trigger("squareClicked", [item.id[0], item.id[1]]);
     }

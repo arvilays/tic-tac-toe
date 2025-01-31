@@ -3,58 +3,45 @@
 /* fonts: "press start 2p" */
 
 body {
-    background-color: black;
+    background-color: #000000;
+    background-image: url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 16c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zm33.414-6l5.95-5.95L45.95.636 40 6.586 34.05.636 32.636 2.05 38.586 8l-5.95 5.95 1.414 1.414L40 9.414l5.95 5.95 1.414-1.414L41.414 8zM40 48c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8zm0-2c3.314 0 6-2.686 6-6s-2.686-6-6-6-6 2.686-6 6 2.686 6 6 6zM9.414 40l5.95-5.95-1.414-1.414L8 38.586l-5.95-5.95L.636 34.05 6.586 40l-5.95 5.95 1.414 1.414L8 41.414l5.95 5.95 1.414-1.414L9.414 40z' fill='%239C92AC' fill-opacity='0.19' fill-rule='evenodd'/%3E%3C/svg%3E");
     font-size: 16px;
     font-family: "press start 2p";
-    height: 100vh;
-}
-
-/**** PLAYERS ****/
-@media only screen and (min-width: 0px) {
-    .player {
-        position: absolute;
-        color: white;
-        font-size: 4em;
-        padding: 80px;
-    }
-    
-    .player1 {
-
-    }
-
-    .player2 {
-        bottom: 0;
-        right: 0;
-        text-align: right;
-    }
 }
 
 /**** CONTAINER ****/
 @media only screen and (min-width: 0px) {
     .container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%; 
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: 1fr 100px 300px;
+        height: 100vh;
     }
 }
 
 /*** BOARD ***/
 @media only screen and (min-width: 0px) {
     .board {
+        grid-area: 1 / 1 / 2 / 4;
+        align-content: center;
+        justify-items: center;
+    }
+
+    .board-container {
         overflow: hidden;
         background-color: grey;
         display: grid;
-        grid-template-columns: repeat(3, 200px);
-        grid-template-rows: repeat(3, 200px);
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(3, 100px);
         border-radius: 20px;
     }
 
     .square {
-        font-size: 4em;
+        font-size: 0em;
         text-align: center;
         align-content: center;
         border: 1px solid black;
+        transition: all 0.1s ease-in;
     }
 
     .square:hover {
@@ -62,3 +49,102 @@ body {
         background-color: rgb(187, 187, 187);
     }
 }
+
+@media only screen and (min-width: 600px) {
+    .board-container {
+        grid-template-columns: repeat(3, 200px);
+        grid-template-rows: repeat(3, 200px);
+    }
+}
+
+/*** MENU ***/
+@media only screen and (min-width: 0px) {
+    .menu {
+        grid-area: 2 / 1 / 3 / 4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        font-size: clamp(0em, 3vw, 1em);
+    }
+    
+    .menu > * {
+        padding: 15px;
+    }
+
+    .menu-message {
+        background-color: rgb(236, 236, 236);
+    }
+
+    .restart {
+        background-color: pink;
+    }
+
+    .restart:hover {
+        cursor: pointer;
+        background-color: rgb(204, 132, 172);
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    .menu {
+        font-size: 1em;
+    }
+
+    .menu > * {
+        padding: 30px;
+    }
+}
+
+/*** PLAYERS ***/
+@media only screen and (min-width: 0px) {
+    .player {
+        color: white;
+        font-size: 1em;
+        padding: 50px;
+        transition: all 0.5s ease-in;
+    }
+
+    .text {
+        transition: all 0.5s ease-in;
+    }
+
+    .name:hover {
+        cursor: pointer;
+        color: grey;
+    }
+    
+    .player1 {
+        grid-area: 3 / 1 / 4 / 2;
+    }
+
+    .player2 {
+        grid-area: 3 / 3 / 4 / 4;
+        text-align: right;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    .player {
+        font-size: clamp(0em, 2.5vw, 4em);
+    }
+}
+
+/**** POINTER ****/
+@media only screen and (min-width: 0px) {
+    .pointer {
+        z-index: 1;
+        grid-area: 3 / 2 / 4 / 3;
+        align-content: center;
+        justify-items: center;
+    }
+
+    .pointer > img {
+        width: clamp(100px, 10vw, 200px);
+        filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(170deg) brightness(104%) contrast(104%);
+        transition: all 0.5s ease-out;
+    }
+}
+
+
+

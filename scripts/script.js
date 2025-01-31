@@ -1,20 +1,22 @@
 const main = () => {
     gameManager.startGame();
-    // gameBoard.setMarker(0, 0, "X");
-    // gameBoard.setMarker(0, 1, "X");
-    // gameBoard.setMarker(0, 2, "X");
 }
 
 const gameManager = (function() {
-    let currentPlayer = "O";
+    let currentPlayer = "X";
 
     const startGame = () => {
         gameBoard.reset();
         gameDisplay.render(gameBoard.getBoard());
+        gameDisplay.updatePlayer();
     }
 
     const getCurrentPlayer = () => {
         return currentPlayer;
+    }
+
+    const _restartGame = () => {
+        currentPlayer = "X";
     }
 
     const _nextPlayer = () => {
@@ -23,15 +25,18 @@ const gameManager = (function() {
         events.trigger("playerChanged");
     }
 
-    const _winGame = () => {
-        console.log(currentPlayer + " WINS!");
+    const _winGame = winner => {
+        if (winner == "X") gameDisplay.changeMessage(gameDisplay.getPlayer1Name() + " WON!"); 
+        else if (winner == "O") gameDisplay.changeMessage(gameDisplay.getPlayer2Name() + " WON!"); 
+        
     }
 
     const _tieGame = () => {
-        console.log("TIE!");
+        gameDisplay.changeMessage("TIE!"); 
     }
 
-    events.subscribe("gameBoardChanged", _nextPlayer);
+    events.subscribe("turnChanged", _nextPlayer);
+    events.subscribe("restartGame", _restartGame);
     events.subscribe("gameWon", _winGame);
     events.subscribe("gameTie", _tieGame);
     return { startGame, getCurrentPlayer };
@@ -69,7 +74,6 @@ const gameBoard = (function() {
         board = [[" ", " ", " "],
                  [" ", " ", " "],
                  [" ", " ", " "]];
-        events.trigger("gameBoardChanged", getBoard());
     }
 
     const _verifyWin = () => {
@@ -81,7 +85,7 @@ const gameBoard = (function() {
         for (let i = 0; i < boardLength; i++) {
             // Check if row is all symbol
             if (board[i].every((val, i, arr) => val === arr[0] && val == currentPlayer)) {
-                events.trigger("gameWon");
+                events.trigger("gameWon", currentPlayer);
                 return;
             }
 
@@ -92,7 +96,7 @@ const gameBoard = (function() {
                 if (board[i][j] == " ") isBoardFull = false;
             }
             if (columnSymbolCount == boardLength) {
-                events.trigger("gameWon");
+                events.trigger("gameWon", currentPlayer);
                 return;
             }
 
@@ -111,20 +115,31 @@ const gameBoard = (function() {
             events.trigger("gameTie");
             return;
         }
+        events.trigger("turnChanged");
     }
 
     events.subscribe("gameBoardChanged", _verifyWin);
     events.subscribe("squareClicked", setMarker);
+    events.subscribe("restartGame", reset);
     return{ print, getBoard, setMarker, getMarker, reset };
 })();
 
 const gameDisplay = (function () {
     const squares = document.querySelectorAll(".square");
     const player1 = document.querySelector(".player1");
+    const player1Name = document.querySelector(".player1 > .text");
     const player2 = document.querySelector(".player2");
+    const player2Name = document.querySelector(".player2 > .text");
+    const pointer = document.querySelector(".pointer > img");
+    const menuMessage = document.querySelector(".menu-message");
+    const restartButton = document.querySelector(".restart-button");
+    
+    restartButton.addEventListener("click", () => { _restartGame(); });
+    player1.addEventListener("click", () => { _changePlayerName(player1); });
+    player2.addEventListener("click", () => { _changePlayerName(player2); });
     squares.forEach(item => {
         item.addEventListener("click", () => {
-            squareClicked(item);
+            _squareClicked(item);
         });
     });
 
@@ -143,27 +158,56 @@ const gameDisplay = (function () {
         });
     };
 
-    const squareClicked = item => {
-        if (gameManager.getCurrentPlayer() == "O") {
+    const changeMessage = text => {
+        menuMessage.textContent = text;
+    };
+
+    const updatePlayer = () => {
+        let currentPlayer = gameManager.getCurrentPlayer();
+        if (currentPlayer == "X") {
+            player1Name.style.filter = "drop-shadow(0px 0px 30px white)";
+            player2Name.style.filter = "revert";
+            pointer.style.transform = "translate(-150%, 0) rotate(0deg)";
+            changeMessage(player1Name.querySelector(".name").textContent + "'s Turn");
+        } else if (currentPlayer == "O") {
+            player2Name.style.filter = "drop-shadow(0px 0px 30px white)";
+            player1Name.style.filter = "revert";
+            pointer.style.transform = "translate(150%, 0) rotate(-540deg)";
+            changeMessage(player2Name.querySelector(".name").textContent + "'s Turn");
+        }
+    }
+
+    const getPlayer1Name = () => {
+        return player1Name.querySelector(".name").textContent;
+    }
+
+    const getPlayer2Name = () => {
+        return player2Name.querySelector(".name").textContent;
+    }
+
+    const _restartGame = () => {
+        squares.forEach(item => { item.style.color = "black"; });
+        events.trigger("restartGame");
+        render(gameBoard.getBoard());
+        updatePlayer();
+    }
+
+    const _squareClicked = item => {
+        if (gameManager.getCurrentPlayer() == "O" && item.textContent != "X") {
             item.style.color = "white";
         }
+        item.style.fontSize = "4em";
         events.trigger("squareClicked", [item.id[0], item.id[1]]);
     }
 
-    const _changePlayer = () => {
-        let currentPlayer = gameManager.getCurrentPlayer();
-        if (currentPlayer == "X") {
-            player1.style.filter = "drop-shadow(0px 0px 30px white)";
-            player2.style.filter = "revert";
-        } else if (currentPlayer == "O") {
-            player2.style.filter = "drop-shadow(0px 0px 30px white)";
-            player1.style.filter = "revert";
-        }
+    const _changePlayerName = player => {
+        let newName = prompt("Type your name: ");
+        player.querySelector(".name").textContent = newName;
     }
 
     events.subscribe("gameBoardChanged", render);
-    events.subscribe("playerChanged", _changePlayer);
-    return { render, squareClicked };
+    events.subscribe("playerChanged", updatePlayer);
+    return { render, changeMessage, updatePlayer, getPlayer1Name, getPlayer2Name };
 })();
 
 main();
